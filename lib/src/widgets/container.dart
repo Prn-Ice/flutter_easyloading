@@ -21,12 +21,13 @@
 // IN THE SOFTWARE.
 
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
-import '../theme.dart';
 import '../easy_loading.dart';
+import '../theme.dart';
 
 class EasyLoadingContainer extends StatefulWidget {
   final Widget? indicator;
@@ -56,6 +57,7 @@ class EasyLoadingContainerState extends State<EasyLoadingContainer>
     with SingleTickerProviderStateMixin {
   String? _status;
   Color? _maskColor;
+  late EasyLoadingMaskType? _maskType;
   late AnimationController _animationController;
   late AlignmentGeometry _alignment;
   late bool _dismissOnTap, _ignoring;
@@ -77,6 +79,7 @@ class EasyLoadingContainerState extends State<EasyLoadingContainer>
     _ignoring =
         _dismissOnTap ? false : EasyLoadingTheme.ignoring(widget.maskType);
     _maskColor = EasyLoadingTheme.maskColor(widget.maskType);
+    _maskType = widget.maskType;
     _animationController = AnimationController(
       vsync: this,
       duration: EasyLoadingTheme.animationDuration,
@@ -144,17 +147,8 @@ class EasyLoadingContainerState extends State<EasyLoadingContainer>
                     ? GestureDetector(
                         onTap: _onTap,
                         behavior: HitTestBehavior.translucent,
-                        child: Container(
-                          width: double.infinity,
-                          height: double.infinity,
-                          color: _maskColor,
-                        ),
-                      )
-                    : Container(
-                        width: double.infinity,
-                        height: double.infinity,
-                        color: _maskColor,
-                      ),
+                        child: _buildMaskContainer())
+                    : _buildMaskContainerByMaskType(),
               ),
             );
           },
@@ -173,6 +167,24 @@ class EasyLoadingContainerState extends State<EasyLoadingContainer>
           },
         ),
       ],
+    );
+  }
+
+  Widget _buildMaskContainerByMaskType() {
+    if (_maskType == EasyLoadingMaskType.blur)
+      return BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+        child: _buildMaskContainer(),
+      );
+
+    return _buildMaskContainer();
+  }
+
+  Container _buildMaskContainer() {
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      color: _maskColor,
     );
   }
 }
