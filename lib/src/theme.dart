@@ -70,7 +70,7 @@ class EasyLoadingTheme {
   /// mask color of loading
   static Color maskColor(EasyLoadingMaskType? maskType) {
     maskType ??= EasyLoading.instance.maskType;
-    return maskType == EasyLoadingMaskType.custom
+    return maskType == (EasyLoadingMaskType.custom ?? EasyLoadingMaskType.blur)
         ? EasyLoading.instance.maskColor!
         : maskType == EasyLoadingMaskType.black
             ? Colors.black.withOpacity(0.5)
